@@ -2,22 +2,20 @@ name: Build OpenChamber IPA
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main, master ]
 
 permissions:
   contents: read
 
 jobs:
   build:
-    runs-on: macos-14
-    timeout-minutes: 20
+    runs-on: macos-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show Xcode version
+      - name: Show toolchain
         run: |
           xcodebuild -version
           xcrun --sdk iphoneos --show-sdk-version
@@ -41,7 +39,6 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            SWIFT_OPTIMIZATION_LEVEL="-O" \
             build
 
       - name: Package IPA
@@ -53,7 +50,6 @@ jobs:
           cp -R "$APP" Payload/
           /usr/bin/zip -r -q OpenChamber.ipa Payload
           ls -lh OpenChamber.ipa
-          unzip -l OpenChamber.ipa | head -20
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
